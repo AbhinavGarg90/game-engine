@@ -47,8 +47,8 @@ build/
 /build-rust-analyzer/
 /dist/
 /unicode-downloads
-engine/target/
-sandbox/target/
+/engine/target/
+/sandbox/target/
 /target/
 /src/bootstrap/target
 /src/tools/x/target
