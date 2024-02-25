@@ -1,13 +1,17 @@
-use super::event::Event;
+use self::linux::LinuxWindow;
 
-struct WindowProps {
+use super::event::Event;
+pub mod linux;
+
+#[derive(Debug)]
+pub struct WindowProps {
     title: String,
-    height: i32,
-    width: i32,
+    height: u32,
+    width: u32,
 }
 
 impl WindowProps {
-    fn new(title: String, height: i32, width: i32) -> Self {
+    pub fn new(title: String, height: u32, width: u32) -> Self {
         WindowProps {
             title,
             height,
@@ -20,23 +24,29 @@ impl Default for WindowProps {
     fn default() -> Self {
         WindowProps {
             title: "engine-blue".to_string(),
-            height: 1280,
-            width: 720,
+            height: 720,
+            width: 1280,
         }
     }
 }
 
 pub type EventCallBackFn = fn(&Event);
 
-pub(crate) struct Window<T: WindowInterface> {
-    window_implementation: T,
+pub struct Window<T: WindowInterface> {
+    pub window_implementation: T,
 }
-
+impl Window<LinuxWindow> {
+    pub fn new(props: WindowProps) -> Self {
+        Window {
+            window_implementation: LinuxWindow::new(props).unwrap()
+        }
+    }
+}
 pub trait WindowInterface {
-    fn on_update();
-    fn get_width() -> i32;
-    fn get_height() -> i32;
-    fn set_event_callback(callback: EventCallBackFn);
-    fn set_vsync(enabled: bool);
-    fn is_vsync() -> bool;
+    fn on_update(&mut self);
+    fn get_width(&self) -> u32;
+    fn get_height(&self) -> u32;
+    fn set_event_callback(&mut self, mcallback: EventCallBackFn);
+    fn set_vsync(&mut self, enabled: bool);
+    fn is_vsync(&self) -> bool;
 }

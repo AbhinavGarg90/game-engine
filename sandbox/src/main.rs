@@ -1,10 +1,10 @@
-use engine_blue::engine::application::Application;
+use engine_blue::engine::{application::Application, window::linux::LinuxWindow};
 mod sandbox;
 
 
 fn main() 
 {
     env_logger::init();
-    let s = sandbox::Sandbox::new();
-    s.run();
+    let mut application = Application::new::<LinuxWindow>();
+    application.run();
 }
