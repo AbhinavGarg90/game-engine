@@ -1,6 +1,10 @@
-use sandbox;
+use engine_blue::engine::application::Application;
+mod sandbox;
+
 
 fn main() 
 {
-    sandbox::run();
+    env_logger::init();
+    let s = sandbox::Sandbox::new();
+    s.run();
 }
