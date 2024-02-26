@@ -1,3 +1,5 @@
+use super::StaticEventType;
+
 use super::{Event, EventType};
 
 pub struct MouseMovedEvent {

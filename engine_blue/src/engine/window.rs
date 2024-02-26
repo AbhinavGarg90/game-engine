@@ -1,3 +1,5 @@
+use glfw::Glfw;
+
 use self::linux::LinuxWindow;
 
 use super::event::Event;
@@ -49,4 +51,5 @@ pub trait WindowInterface {
     fn set_event_callback(&mut self, mcallback: EventCallBackFn);
     fn set_vsync(&mut self, enabled: bool);
     fn is_vsync(&self) -> bool;
+    fn window_should_close(&self) -> bool;
 }

@@ -2,7 +2,7 @@ use log::info;
 
 use crate::engine::event::applicationevent::WindowResizeEvent;
 
-use super::window::{linux::LinuxWindow, Window, WindowInterface, WindowProps};
+use super::{event::{Event, EventType}, window::{linux::LinuxWindow, Window, WindowInterface, WindowProps}};
 
 
 pub struct Application<T: WindowInterface>{
@@ -11,17 +11,22 @@ pub struct Application<T: WindowInterface>{
 }
 
 impl Application<LinuxWindow> {
-    pub fn new<L: WindowInterface>() -> Self {
+    pub fn new() -> Application<LinuxWindow> {
+        let mut window = Window::new(WindowProps::default());
         Application {
-            window: Window::new(WindowProps::default()),
+            window, 
             running: true,
         }
+    }
+    pub fn close_window(&mut self) -> bool{
+        self.running = false;
+        true 
     }
 }
 
 impl<T: WindowInterface> Application<T> {
     pub fn run(&mut self) {
-        while self.running {
+        while !self.window.window_implementation.window_should_close(){
             self.window.window_implementation.on_update();
         }
     }

@@ -1,3 +1,6 @@
+use glfw::Window;
+use super::StaticEventType;
+
 use crate::impl_new_functions;
 
 use super::Event;

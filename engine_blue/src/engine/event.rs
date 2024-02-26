@@ -1,22 +1,36 @@
+pub mod applicationevent;
 pub mod keyevent;
 pub mod mousevent;
-pub mod applicationevent;
 
 #[derive(Debug)]
 pub struct Event {
-	//convert eventype to enum later
+    //convert eventype to enum later
     event_type: EventType,
 }
+
 // convert to enum of structs in the future?
 #[derive(Debug)]
 pub enum EventType {
-	None = 0,
-	WindowClose, WindowResize, WindowFocus, WindowLostFocus, WindowMoved,
-	AppTick, AppUpdate, AppRender,
-	KeyPressed, KeyReleased,
-	MouseButtonPressed, MouseButtonReleased, MouseMoved, MouseScrolled
+    None = 0,
+    WindowClose,
+    WindowResize,
+    WindowFocus,
+    WindowLostFocus,
+    WindowMoved,
+    AppTick,
+    AppUpdate,
+    AppRender,
+    KeyPressed,
+    KeyReleased,
+    MouseButtonPressed,
+    MouseButtonReleased,
+    MouseMoved,
+    MouseScrolled,
 }
 
+pub(crate) trait StaticEventType {
+    fn get_static_type(&self) -> &EventType;
+}
 
 impl EventType {
     fn to_string(&self) -> String {
@@ -44,26 +58,26 @@ impl EventType {
 pub enum EventCategory {}
 
 impl Event {
-    fn get_event_type(&self) -> &EventType {
+    pub fn get_event_type(&self) -> &EventType {
         &self.event_type
     }
     // fn get_category_name() -> i32; // TODO: implement based on relevancy
 }
 
-struct EventDispatcher {
+pub struct EventDispatcher {
     event: Event,
 }
 
-
-type EventFn<T> = fn(&T) -> bool;
+type EventFn = fn(dyn StaticEventType) -> bool;
 
 impl EventDispatcher {
-    fn new(event: Event) -> EventDispatcher {
-		  EventDispatcher {event}
+    pub fn new(event: Event) -> EventDispatcher {
+        EventDispatcher { event }
     }
 
-    fn dispatch<T>(&self, func: EventFn<T>) -> bool {
-		  todo!()
+    pub fn dispatch<T>(&self, func: EventFn) -> bool {
+		//   func(&self.event)
+		todo!()
     }
 
     fn get_category_flags() -> i32 {
@@ -84,4 +98,17 @@ macro_rules! impl_new_functions {
             }
         )*
     };
+}
+
+#[macro_export]
+macro_rules! impl_get_static_type {
+	($($struct_name:ident),*) => {
+	$(
+		impl StaticEventType for $struct_name {
+			fn get_static_type(&self) -> &EventType {
+				self.get_event_type()
+			}
+		}
+	)*
+	};
 }
