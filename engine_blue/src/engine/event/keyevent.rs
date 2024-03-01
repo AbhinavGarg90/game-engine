@@ -1,3 +1,6 @@
+use crate::impl_get_static_type;
+use super::StaticEventType;
+
 use super::{Event, EventType};
 
 pub trait KeyEvent {
@@ -49,3 +52,9 @@ impl KeyEvent for KeyReleasedEvent {
         self.key_code
     }
 }
+
+
+impl_get_static_type!(
+    KeyReleasedEvent, KeyReleased,
+    KeyPressedEvent, KeyPressed
+);

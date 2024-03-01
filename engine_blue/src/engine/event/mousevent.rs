@@ -1,3 +1,5 @@
+use crate::impl_get_static_type;
+
 use super::StaticEventType;
 
 use super::{Event, EventType};
@@ -68,3 +70,11 @@ impl MouseButtonReleasedEvent {
         }
     }
 }
+
+
+impl_get_static_type!(
+    MouseMovedEvent, MoueMoved,
+    MouseScrollEvent, MouseScrolled,
+    MouseButtonPressedEvent, MouseButtonPressed,
+    MouseButtonReleasedEvent, MouseButtonReleased
+);

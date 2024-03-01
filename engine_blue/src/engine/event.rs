@@ -1,3 +1,5 @@
+use std::mem::transmute;
+
 pub mod applicationevent;
 pub mod keyevent;
 pub mod mousevent;
@@ -9,7 +11,7 @@ pub struct Event {
 }
 
 // convert to enum of structs in the future?
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum EventType {
     None = 0,
     WindowClose,
@@ -29,7 +31,7 @@ pub enum EventType {
 }
 
 pub(crate) trait StaticEventType {
-    fn get_static_type(&self) -> &EventType;
+    fn get_static_type(&self) -> EventType;
 }
 
 impl EventType {
@@ -64,20 +66,23 @@ impl Event {
     // fn get_category_name() -> i32; // TODO: implement based on relevancy
 }
 
-pub struct EventDispatcher {
-    event: Event,
+pub struct EventDispatcher<'a> {
+    event_ptr: Box<&'a dyn StaticEventType>
 }
 
-type EventFn = fn(dyn StaticEventType) -> bool;
+type EventFn<T: StaticEventType> = fn(&T) -> bool;
 
-impl EventDispatcher {
-    pub fn new(event: Event) -> EventDispatcher {
-        EventDispatcher { event }
+impl<'a> EventDispatcher<'a> {
+    pub fn new(event: &'a dyn StaticEventType) -> EventDispatcher<'a> {
+        EventDispatcher { event_ptr: Box::new(event) }
     }
 
-    pub fn dispatch<T>(&self, func: EventFn) -> bool {
-		//   func(&self.event)
-		todo!()
+    pub fn dispatch<T: StaticEventType + Default>(&self, func: EventFn<T>) -> bool {
+        if T::get_static_type(&T::default()) == self.event_ptr.get_static_type() {
+            unsafe {func(transmute::<Box<&'a dyn StaticEventType>, &T>(self.event_ptr))};
+            return true;
+        }
+        false
     }
 
     fn get_category_flags() -> i32 {
@@ -102,11 +107,11 @@ macro_rules! impl_new_functions {
 
 #[macro_export]
 macro_rules! impl_get_static_type {
-	($($struct_name:ident),*) => {
+	($($struct_name:ident, $enum_name:ident),*) => {
 	$(
 		impl StaticEventType for $struct_name {
-			fn get_static_type(&self) -> &EventType {
-				self.get_event_type()
+			fn get_static_type(&self) -> EventType {
+                EventType::$enum_name
 			}
 		}
 	)*

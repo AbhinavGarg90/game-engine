@@ -1,6 +1,7 @@
 use glfw::Window;
 use super::StaticEventType;
 
+use crate::impl_get_static_type;
 use crate::impl_new_functions;
 
 use super::Event;
@@ -54,3 +55,10 @@ impl_new_functions!(
     AppUpdateEvent, AppUpdate,
     AppRenderEvent, AppRender
 );  
+
+impl_get_static_type!(
+    WindowCloseEvent, WindowClose,
+    AppTickEvent, AppTick,
+    AppUpdateEvent, AppUpdate,
+    AppRenderEvent, AppRender
+);
