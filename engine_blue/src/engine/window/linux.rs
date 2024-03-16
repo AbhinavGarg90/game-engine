@@ -1,5 +1,6 @@
 use std::error::Error;
 
+
 use gl::types;
 use glfw::{
     fail_on_errors, Context, Glfw, GlfwReceiver, InitError, PWindow, WindowEvent, WindowMode,
@@ -8,14 +9,14 @@ use log::info;
 
 use crate::engine::event;
 
-use super::{EventCallBackFn, WindowInterface, WindowProps};
+use super::{WindowInterface, WindowProps};
 
 pub struct LinuxWindow {
     title: String,
     width: u32,
     height: u32,
     vsync: bool,
-    event_callback_fn: Option<EventCallBackFn>,
+    // event_callback_fn: Option<EventCallBackFn>,
     glfw_handle: Glfw,
     glfw_window_handle: PWindow,
     glfw_event_handle: GlfwReceiver<(f64, glfw::WindowEvent)>,
@@ -51,7 +52,6 @@ impl LinuxWindow {
             glfw_window_handle,
             glfw_handle,
             vsync: true,
-            event_callback_fn: None,
         })
     }
     fn handle_event(&self, event: &WindowEvent) {
@@ -65,7 +65,6 @@ impl LinuxWindow {
 impl WindowInterface for LinuxWindow {
     fn on_update(&mut self) {
         self.glfw_window_handle.swap_buffers();
-
         self.glfw_handle.poll_events();
         for (_, event) in glfw::flush_messages(&self.glfw_event_handle) {
             info!("{event:?}");
@@ -77,9 +76,6 @@ impl WindowInterface for LinuxWindow {
     }
     fn get_height(&self) -> u32 {
         self.height
-    }
-    fn set_event_callback(&mut self, callback: EventCallBackFn) {
-        self.event_callback_fn = Some(callback);
     }
     fn set_vsync(&mut self, enabled: bool) {
         // does nothing at the moment

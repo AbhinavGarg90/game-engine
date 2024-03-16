@@ -1,119 +1,50 @@
-use std::mem::transmute;
+use self::{applicationevent::{AppRenderEvent, AppTickEvent, AppUpdateEvent, WindowCloseEvent, WindowFocusEvent, WindowLostFocusEvent, WindowMovedEvent, WindowResizeEvent}, keyevent::{KeyPressedEvent, KeyReleasedEvent}, mousevent::{MouseButtonPressedEvent, MouseButtonReleasedEvent, MouseMovedEvent, MouseScrollEvent}};
 
 pub mod applicationevent;
 pub mod keyevent;
 pub mod mousevent;
+pub mod glfw_event_handler;
 
-#[derive(Debug)]
-pub struct Event {
-    //convert eventype to enum later
-    event_type: EventType,
-}
-
-// convert to enum of structs in the future?
-#[derive(Debug, PartialEq)]
 pub enum EventType {
-    None = 0,
-    WindowClose,
-    WindowResize,
-    WindowFocus,
-    WindowLostFocus,
-    WindowMoved,
-    AppTick,
-    AppUpdate,
-    AppRender,
-    KeyPressed,
-    KeyReleased,
-    MouseButtonPressed,
-    MouseButtonReleased,
-    MouseMoved,
-    MouseScrolled,
+    None ,
+    WindowClose(WindowCloseEvent),
+    WindowResize(WindowResizeEvent),
+    WindowFocus(WindowFocusEvent),
+    WindowLostFocus(WindowLostFocusEvent),
+    WindowMoved(WindowMovedEvent),
+    AppTick(AppTickEvent),
+    AppUpdate(AppUpdateEvent),
+    AppRender(AppRenderEvent),
+    KeyPressed(KeyPressedEvent),
+    KeyReleased(KeyReleasedEvent),
+    MouseButtonPressed(MouseButtonPressedEvent),
+    MouseButtonReleased(MouseButtonReleasedEvent),
+    MouseMoved(MouseMovedEvent),
+    MouseScroll(MouseScrollEvent),
 }
 
-pub(crate) trait StaticEventType {
-    fn get_static_type(&self) -> EventType;
+pub(crate) trait DispatchesEvent {
+    fn on_event(&mut self, e: &EventType) -> bool;
 }
 
 impl EventType {
     fn to_string(&self) -> String {
         match self {
             EventType::None => "None".to_string(),
-            EventType::WindowClose => "WindowClose".to_string(),
-            EventType::WindowResize => "WindowResize".to_string(),
-            EventType::WindowFocus => "WindowFocus".to_string(),
-            EventType::WindowLostFocus => "WindowLostFocus".to_string(),
-            EventType::WindowMoved => "WindowMoved".to_string(),
-            EventType::AppTick => "AppTick".to_string(),
-            EventType::AppUpdate => "AppUpdate".to_string(),
-            EventType::AppRender => "AppRender".to_string(),
-            EventType::KeyPressed => "KeyPressed".to_string(),
-            EventType::KeyReleased => "KeyReleased".to_string(),
-            EventType::MouseButtonPressed => "MouseButtonPressed".to_string(),
-            EventType::MouseButtonReleased => "MouseButtonReleased".to_string(),
-            EventType::MouseMoved => "MouseMoved".to_string(),
-            EventType::MouseScrolled => "MouseScrolled".to_string(),
+            EventType::WindowClose(_) => "WindowClose".to_string(),
+            EventType::WindowResize(_) => "WindowResize".to_string(),
+            EventType::WindowFocus(_) => "WindowFocus".to_string(),
+            EventType::WindowLostFocus(_) => "WindowLostFocus".to_string(),
+            EventType::WindowMoved(_) => "WindowMoved".to_string(),
+            EventType::AppTick(_) => "AppTick".to_string(),
+            EventType::AppUpdate(_) => "AppUpdate".to_string(),
+            EventType::AppRender(_) => "AppRender".to_string(),
+            EventType::KeyPressed(_) => "KeyPressed".to_string(),
+            EventType::KeyReleased(_) => "KeyReleased".to_string(),
+            EventType::MouseButtonPressed(_) => "MouseButtonPressed".to_string(),
+            EventType::MouseButtonReleased(_) => "MouseButtonReleased".to_string(),
+            EventType::MouseMoved(_) => "MouseMoved".to_string(),
+            EventType::MouseScroll(_) => "MouseScrolled".to_string(),
         }
     }
-}
-
-// TODO
-pub enum EventCategory {}
-
-impl Event {
-    pub fn get_event_type(&self) -> &EventType {
-        &self.event_type
-    }
-    // fn get_category_name() -> i32; // TODO: implement based on relevancy
-}
-
-pub struct EventDispatcher<'a> {
-    event_ptr: Box<&'a dyn StaticEventType>
-}
-
-type EventFn<T: StaticEventType> = fn(&T) -> bool;
-
-impl<'a> EventDispatcher<'a> {
-    pub fn new(event: &'a dyn StaticEventType) -> EventDispatcher<'a> {
-        EventDispatcher { event_ptr: Box::new(event) }
-    }
-
-    pub fn dispatch<T: StaticEventType + Default>(&self, func: EventFn<T>) -> bool {
-        if T::get_static_type(&T::default()) == self.event_ptr.get_static_type() {
-            unsafe {func(transmute::<Box<&'a dyn StaticEventType>, &T>(self.event_ptr))};
-            return true;
-        }
-        false
-    }
-
-    fn get_category_flags() -> i32 {
-        todo!()
-    }
-}
-
-#[macro_export]
-macro_rules! impl_new_functions {
-    ($($struct_name:ident, $struct_enum:ident),*) => {
-        $(
-            impl Default for $struct_name {
-                fn default() -> Self {
-                    $struct_name { event: Event {
-                        event_type: EventType::$struct_enum,
-                    } }
-                }
-            }
-        )*
-    };
-}
-
-#[macro_export]
-macro_rules! impl_get_static_type {
-	($($struct_name:ident, $enum_name:ident),*) => {
-	$(
-		impl StaticEventType for $struct_name {
-			fn get_static_type(&self) -> EventType {
-                EventType::$enum_name
-			}
-		}
-	)*
-	};
 }

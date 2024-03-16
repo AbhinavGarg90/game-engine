@@ -1,80 +1,89 @@
-use crate::impl_get_static_type;
-
-use super::StaticEventType;
-
-use super::{Event, EventType};
-
 pub struct MouseMovedEvent {
-    event: Event,
-    mouse_x: f64,
-    mouse_y: f64,
+    mouse_x: i32,
+    mouse_y: i32,
 }
 
 impl MouseMovedEvent {
-    fn get_x(&self) -> f64 {
+    pub fn new(x: i32, y: i32) -> Self {
+        MouseMovedEvent {
+            mouse_x: x,
+            mouse_y: y,
+        }
+    }
+    fn get_x(&self) -> i32 {
         self.mouse_x
     }
 
-    fn get_y(&self) -> f64 {
+    fn get_y(&self) -> i32 {
         self.mouse_y
     }
 }
 
 pub struct MouseScrollEvent {
-    event: Event,
-    mouse_x_offset: f64,
-    mouse_y_offset: f64,
+    x_offset: f64,
+    y_offset: f64,
 }
 
 impl MouseScrollEvent {
+    pub fn new(x_offset: f64, y_offset: f64) -> Self {
+        MouseScrollEvent {
+            x_offset,
+            y_offset
+        }
+    }
     fn get_x_offset(&self) -> f64 {
-        self.mouse_x_offset
+        self.x_offset
     }
 
     fn get_y(&self) -> f64 {
-        self.mouse_y_offset
+        self.y_offset
     }
 }
 
-struct MouseButtonEvent {
-    button: i32,
-    event: Event,
+#[repr(i32)]
+pub enum MouseButton {
+    Button1 = 0,
+    Button2,
+    Button3,
+    Button4,
+    Button5,
+    Button6,
+    Button7,
+    Button8,
 }
 
-struct MouseButtonPressedEvent {
+
+#[repr(i32)]
+pub enum Action {
+    Release,
+    Press,
+    Repeat,
+}
+
+pub struct MouseButtonEvent {
+    button: MouseButton,
+}
+
+pub struct MouseButtonPressedEvent {
     mouse_button_event: MouseButtonEvent,
 }
 
 impl MouseButtonPressedEvent {
-    fn new(button: i32) -> Self {
+    pub fn new(button: MouseButton) -> Self {
         MouseButtonPressedEvent {
-            mouse_button_event: MouseButtonEvent {
-                button,
-                event: Event {event_type: EventType::MouseButtonPressed}
-            },
+            mouse_button_event: MouseButtonEvent { button },
         }
     }
 }
 
-struct MouseButtonReleasedEvent {
+pub struct MouseButtonReleasedEvent {
     mouse_button_event: MouseButtonEvent,
 }
 
 impl MouseButtonReleasedEvent {
-    fn new(button: i32) -> Self {
+    pub fn new(button: MouseButton) -> Self {
         MouseButtonReleasedEvent {
-            mouse_button_event: MouseButtonEvent {
-                button,
-                event: Event {event_type: EventType::MouseButtonPressed}
-            },
+            mouse_button_event: MouseButtonEvent { button },
         }
     }
 }
-
-
-impl_get_static_type!(
-    MouseMovedEvent, MoueMoved,
-    MouseScrollEvent, MouseScrolled,
-    MouseButtonPressedEvent, MouseButtonPressed,
-    MouseButtonReleasedEvent, MouseButtonReleased
-);

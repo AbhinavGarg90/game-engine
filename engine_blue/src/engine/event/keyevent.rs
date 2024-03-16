@@ -1,26 +1,18 @@
-use crate::impl_get_static_type;
-use super::StaticEventType;
-
-use super::{Event, EventType};
-
 pub trait KeyEvent {
     fn get_key_code(&self) -> i32;
 }
 
-struct KeyPressedEvent {
-    key_code: i32,
+#[derive(Debug, PartialEq)]
+pub struct KeyPressedEvent {
+    key_code: i32, // leaving as int to avoid pain of creating enum
     repeat_count: i32,
-    event: Event,
 }
 
 impl KeyPressedEvent {
-    fn new(key_code: i32, repeat_count: i32) -> Self {
+    pub fn new(key_code: i32, repeat_count: i32) -> Self {
         KeyPressedEvent {
             key_code,
             repeat_count,
-            event: Event {
-                event_type: EventType::KeyPressed,
-            },
         }
     }
 }
@@ -31,18 +23,14 @@ impl KeyEvent for KeyPressedEvent {
     }
 }
 
-struct KeyReleasedEvent {
+pub struct KeyReleasedEvent {
     key_code: i32,
-    event: Event,
 }
 
 impl KeyReleasedEvent {
-    fn new(key_code: i32) -> Self {
+    pub fn new(key_code: i32) -> Self {
         KeyReleasedEvent {
             key_code,
-            event: Event {
-                event_type: EventType::KeyReleased,
-            },
         }
     }
 }
@@ -52,9 +40,3 @@ impl KeyEvent for KeyReleasedEvent {
         self.key_code
     }
 }
-
-
-impl_get_static_type!(
-    KeyReleasedEvent, KeyReleased,
-    KeyPressedEvent, KeyPressed
-);

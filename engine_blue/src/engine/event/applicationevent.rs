@@ -1,28 +1,14 @@
-use glfw::Window;
-use super::StaticEventType;
-
-use crate::impl_get_static_type;
-use crate::impl_new_functions;
-
-use super::Event;
 use super::EventType;
 
 #[derive(Debug)]
 pub(crate) struct WindowResizeEvent {
     width: i32,
     height: i32,
-    event: Event,
 }
 
 impl WindowResizeEvent {
-    pub fn new(width:i32, height:i32) -> Self {
-        WindowResizeEvent {
-            width,
-            height,
-            event: Event {
-                event_type: EventType::WindowResize,
-            }
-        }
+    pub fn new(width: i32, height: i32) -> Self {
+        WindowResizeEvent { width, height }
     }
     pub fn get_width(&self) -> i32 {
         self.width
@@ -33,32 +19,26 @@ impl WindowResizeEvent {
     }
 }
 
-pub struct WindowCloseEvent {
-    event: Event,
+pub struct WindowCloseEvent {}
+
+pub struct WindowFocusEvent {
+    occurred: bool,
 }
 
-pub struct AppTickEvent {
-    event: Event,
+impl WindowFocusEvent {
+    pub fn new(occurred: bool) -> Self {
+        WindowFocusEvent {
+            occurred
+        }
+    }
 }
 
-pub struct AppUpdateEvent {
-    event: Event,
-}
+pub struct WindowLostFocusEvent {}
 
-pub struct AppRenderEvent {
-    event: Event,
-}
+pub struct WindowMovedEvent {}
 
-impl_new_functions!(
-    WindowCloseEvent, WindowClose,
-    AppTickEvent, AppTick,
-    AppUpdateEvent, AppUpdate,
-    AppRenderEvent, AppRender
-);  
+pub struct AppTickEvent {}
 
-impl_get_static_type!(
-    WindowCloseEvent, WindowClose,
-    AppTickEvent, AppTick,
-    AppUpdateEvent, AppUpdate,
-    AppRenderEvent, AppRender
-);
+pub struct AppUpdateEvent {}
+
+pub struct AppRenderEvent {}

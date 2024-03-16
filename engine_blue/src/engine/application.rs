@@ -1,42 +1,54 @@
-use log::info;
-
-use crate::engine::event::applicationevent::WindowResizeEvent;
-
 use super::{
-    event::{applicationevent::WindowCloseEvent, EventCategory, EventDispatcher, EventType, StaticEventType},
-    window::{linux::LinuxWindow, EventCallBackFn, Window, WindowInterface, WindowProps},
+    event::{applicationevent::WindowCloseEvent, DispatchesEvent, EventType},
+    layer::Layer,
+    layerstack::LayerStack,
+    window::{Window, WindowProps, WindowType},
 };
 
-
-pub struct Application<T: WindowInterface> {
-    window: Window<T>,
+pub struct Application {
+    window: Window,
     running: bool,
+    layer_stack: LayerStack,
 }
 
-impl Application<LinuxWindow> {
-    pub fn new() -> Application<LinuxWindow> {
-        let mut window = Window::new(WindowProps::default());
+impl DispatchesEvent for Application {
+    fn on_event(&mut self, e: &EventType) -> bool {
+        match e {
+            EventType::WindowClose(e) => self.close_window(e),
+            _ => {
+                for layer in self.layer_stack.get_end() {
+                    if (**layer).on_event(e) {
+                        return true
+                    }
+                }
+                false
+            }
+        }
+    }
+}
+
+impl Application {
+    pub fn new(system_type: WindowType) -> Application {
+        let mut window = Window::new(WindowProps::default(), system_type);
         Application {
             window,
             running: true,
+            layer_stack: LayerStack::default(),
         }
     }
-    pub fn close_window(event: &WindowCloseEvent) -> bool {
+    pub fn close_window(&mut self, event: &WindowCloseEvent) -> bool {
         self.running = false;
         true
     }
     // currently takes ownership, may change later
-    fn on_event(event: dyn StaticEventType) {
-        let dispatcher = EventDispatcher::new(&event);
-        if let EventType::WindowClose = event.get_static_type() {
-            dispatcher.dispatch();
-        }
-    }
+    fn push_layer(self, layer: Box<dyn Layer>) {}
 }
 
-impl<T: WindowInterface> Application<T> {
+impl Application {
     pub fn run(&mut self) {
-        while !self.window.window_implementation.window_should_close() {
+        while self.running {
+            unsafe {gl::ClearColor(0f32, 0f32, 1f32, 1f32);}
+            unsafe {gl::Clear(gl::COLOR_BUFFER_BIT)}
             self.window.window_implementation.on_update();
         }
     }
