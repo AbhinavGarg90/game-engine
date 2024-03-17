@@ -29,7 +29,7 @@ impl DispatchesEvent for Application {
 
 impl Application {
     pub fn new(system_type: WindowType) -> Application {
-        let mut window = Window::new(WindowProps::default(), system_type);
+        let window = Window::new(WindowProps::default(), system_type);
         Application {
             window,
             running: true,
@@ -41,7 +41,12 @@ impl Application {
         true
     }
     // currently takes ownership, may change later
-    fn push_layer(self, layer: Box<dyn Layer>) {}
+    pub fn push_layer(&mut self, layer: Box<dyn Layer>) {
+        self.layer_stack.push_layer(layer);
+    }
+    pub fn push_overlay(&mut self, overlay: Box<dyn Layer>) {
+        self.layer_stack.push_overlay(overlay);
+    }
 }
 
 impl Application {
@@ -49,7 +54,12 @@ impl Application {
         while self.running {
             unsafe {gl::ClearColor(0f32, 0f32, 1f32, 1f32);}
             unsafe {gl::Clear(gl::COLOR_BUFFER_BIT)}
-            self.window.window_implementation.on_update();
+            for layer in self.layer_stack.get_begin() {
+                layer.on_update();
+            }
+            for event in self.window.window_implementation.on_update().iter() {
+                self.on_event(event);
+            }
         }
     }
 }

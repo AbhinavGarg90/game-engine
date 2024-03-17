@@ -23,7 +23,7 @@ pub enum EventType {
     MouseScroll(MouseScrollEvent),
 }
 
-pub(crate) trait DispatchesEvent {
+pub trait DispatchesEvent {
     fn on_event(&mut self, e: &EventType) -> bool;
 }
 

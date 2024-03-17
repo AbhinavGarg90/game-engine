@@ -16,8 +16,8 @@ impl From<glfw::Action> for Action {
 }
 
 
-pub trait ToEventType {
-    fn to_event_type(e: WindowEvent) -> EventType{
+impl From<glfw::WindowEvent> for EventType {
+    fn from(e: glfw::WindowEvent) -> EventType {
         match e {
             WindowEvent::Pos(x, y) => EventType::MouseMoved(MouseMovedEvent::new(x, y)),
             WindowEvent::Size(width, height) => EventType::WindowResize(WindowResizeEvent::new(width, height)),
@@ -49,4 +49,3 @@ pub trait ToEventType {
         }
     }
 }
-impl ToEventType for WindowEvent {}

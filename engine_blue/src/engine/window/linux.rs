@@ -1,13 +1,12 @@
 use std::error::Error;
 
-
 use gl::types;
 use glfw::{
     fail_on_errors, Context, Glfw, GlfwReceiver, InitError, PWindow, WindowEvent, WindowMode,
 };
 use log::info;
 
-use crate::engine::event;
+use crate::engine::event::{self, EventType};
 
 use super::{WindowInterface, WindowProps};
 
@@ -54,22 +53,18 @@ impl LinuxWindow {
             vsync: true,
         })
     }
-    fn handle_event(&self, event: &WindowEvent) {
-        match event {
-            WindowEvent::CursorPos(x, y) => info!("xpos: {x} ypos: {y}"),
-            _ => info!("other event"),
-        }
-    }
 }
 
 impl WindowInterface for LinuxWindow {
-    fn on_update(&mut self) {
+    fn on_update(&mut self) -> Vec<EventType>{
         self.glfw_window_handle.swap_buffers();
         self.glfw_handle.poll_events();
+        let mut event_vec = Vec::<EventType>::new();
         for (_, event) in glfw::flush_messages(&self.glfw_event_handle) {
             info!("{event:?}");
-            self.handle_event(&event);
+            event_vec.push(event.into());
         }
+        event_vec
     }
     fn get_width(&self) -> u32 {
         self.width

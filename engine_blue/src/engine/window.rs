@@ -1,5 +1,7 @@
 use self::linux::LinuxWindow;
 
+use super::event::EventType;
+
 pub mod linux;
 
 #[derive(Debug)]
@@ -48,7 +50,7 @@ impl Window {
     }
 }
 pub trait WindowInterface {
-    fn on_update(&mut self);
+    fn on_update(&mut self) -> Vec<EventType>;
     fn get_width(&self) -> u32;
     fn get_height(&self) -> u32;
     fn set_vsync(&mut self, enabled: bool);

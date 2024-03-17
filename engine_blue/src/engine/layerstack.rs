@@ -10,6 +10,7 @@ impl Default for LayerStack {
         LayerStack { layers: Vec::new() }
     }
 }
+
 impl LayerStack {
     #[inline(always)]
     pub fn new() -> Self {
