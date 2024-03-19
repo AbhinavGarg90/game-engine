@@ -1,6 +1,6 @@
 use super::{
     event::{applicationevent::WindowCloseEvent, DispatchesEvent, EventType},
-    layer::Layer,
+    layer::{self, Layer},
     layerstack::LayerStack,
     window::{Window, WindowProps, WindowType},
 };
@@ -16,7 +16,9 @@ impl DispatchesEvent for Application {
         match e {
             EventType::WindowClose(e) => self.close_window(e),
             _ => {
-                for layer in self.layer_stack.get_end() {
+                let layer_stack_end = self.layer_stack.get_end();
+                for layer in layer_stack_end {
+                    dbg!(layer.get_debug_name());
                     if (**layer).on_event(e) {
                         return true
                     }
@@ -54,7 +56,8 @@ impl Application {
         while self.running {
             unsafe {gl::ClearColor(0f32, 0f32, 1f32, 1f32);}
             unsafe {gl::Clear(gl::COLOR_BUFFER_BIT)}
-            for layer in self.layer_stack.get_begin() {
+            let layer_stack_iter = self.layer_stack.get_begin();
+            for layer in layer_stack_iter {
                 layer.on_update();
             }
             for event in self.window.window_implementation.on_update().iter() {

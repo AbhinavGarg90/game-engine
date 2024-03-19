@@ -23,10 +23,10 @@ impl LayerStack {
         self.layers.iter_mut()
     }
     pub fn push_layer(&mut self, layer: Box<dyn Layer>) {
-        self.layers.push(layer);
+        self.layers.insert(0, layer)
     }
     pub fn push_overlay(&mut self, overlay: Box<dyn Layer>) {
-        self.layers.insert(0, overlay)
+        self.layers.push(overlay);
     }
     pub fn pop_layer(&mut self, layer: Box<dyn Layer>) {
         match self
