@@ -32,6 +32,12 @@ impl Layer for Egui {
     fn on_update(&self) {
         let mut egui_input = egui::RawInput::default();
         self.ctx.begin_frame(egui_input.take());
+        CentralPanel::default().show(&self.ctx, |ui| {
+            ui.label("Hello, Egui with Glow and GLFW!");
+            if ui.button("Click me").clicked() {
+                println!("Button clicked!");
+            }
+        });
         let _ = self.ctx.run(egui_input, |ctx| {
             egui::CentralPanel::default().show(&ctx, |ui| {
                 ui.label("Hello egui!");
