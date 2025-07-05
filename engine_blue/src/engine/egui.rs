@@ -1,7 +1,7 @@
 use egui::{CentralPanel, Painter, Rect, Ui};
 use log::info;
 
-use super::{event::{DispatchesEvent, EventType}, layer::Layer};
+use super::{event::{DispatchesEvent, EventType}, layer::Layer, window::Window};
 
 pub struct Egui {
     ui: egui::Area,
@@ -34,17 +34,27 @@ impl Layer for Egui {
         self.ctx.begin_frame(egui_input.take());
         CentralPanel::default().show(&self.ctx, |ui| {
             ui.label("Hello, Egui with Glow and GLFW!");
-            if ui.button("Click me").clicked() {
-                println!("Button clicked!");
-            }
+            ui.add(egui::Slider::new(&mut 20, 0..=120).text("age"));
         });
+
+        egui::Window::new("egui window")
+                .open(&mut true)
+                .default_size([800.0,400.0])
+                .vscroll(false)
+                .hscroll(true)
+                .resizable(true)
+                .show(&self.ctx, |ui| {
+                    if ui.button("Increment").clicked() {
+                        info!("button clicked")
+                    }
+                });
+
         let _ = self.ctx.run(egui_input, |ctx| {
             egui::CentralPanel::default().show(&ctx, |ui| {
                 ui.label("Hello egui!");
                 if ui.button("click me").clicked() {info!("button clicked")}
             });
         });
-
         let _full_output = self.ctx.end_frame();
     }
     fn get_debug_name(&self) -> String {

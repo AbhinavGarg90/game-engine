@@ -1,12 +1,10 @@
 use std::error::Error;
-
-use gl::types;
 use glfw::{
-    fail_on_errors, Context, Glfw, GlfwReceiver, InitError, PWindow, WindowEvent, WindowMode,
+    fail_on_errors, Context, Glfw, GlfwReceiver, WindowMode,
 };
 use log::info;
 
-use crate::engine::event::{self, EventType};
+use crate::engine::{event::EventType, renderer::graphics_context::{opengl::OpenGlContext, GraphicsContext}};
 
 use super::{WindowInterface, WindowProps};
 
@@ -17,7 +15,7 @@ pub struct LinuxWindow {
     vsync: bool,
     // event_callback_fn: Option<EventCallBackFn>,
     glfw_handle: Glfw,
-    glfw_window_handle: PWindow,
+    glfw_graphics_context: OpenGlContext,
     glfw_event_handle: GlfwReceiver<(f64, glfw::WindowEvent)>,
 }
 
@@ -41,14 +39,14 @@ impl LinuxWindow {
         // VSYNC is set automatically for now
         //  ThreadSafeGlfw used for setting if needed
         glfw_window_handle.set_all_polling(true);
-
-        gl::load_with(|symbol| glfw_window_handle.get_proc_address(symbol) as *const _);
+        let mut glfw_graphics_context = OpenGlContext::new(glfw_window_handle);
+        glfw_graphics_context.init();
         Ok(LinuxWindow {
             title: props.title,
             width: props.width,
             height: props.height,
             glfw_event_handle,
-            glfw_window_handle,
+            glfw_graphics_context,
             glfw_handle,
             vsync: true,
         })
@@ -57,7 +55,7 @@ impl LinuxWindow {
 
 impl WindowInterface for LinuxWindow {
     fn on_update(&mut self) -> Vec<EventType>{
-        self.glfw_window_handle.swap_buffers();
+        self.glfw_graphics_context.glfw_window_handle.swap_buffers();
         self.glfw_handle.poll_events();
         let mut event_vec = Vec::<EventType>::new();
         for (_, event) in glfw::flush_messages(&self.glfw_event_handle) {
@@ -80,6 +78,6 @@ impl WindowInterface for LinuxWindow {
         self.vsync
     }
     fn window_should_close(&self) -> bool {
-        self.glfw_window_handle.should_close()
+        self.glfw_graphics_context.glfw_window_handle.should_close()
     }
 }

@@ -21,9 +21,7 @@ fn main()
     std::env::set_var("RUST_LOG", "info"); // FOR DEBUG
     env_logger::init();
     let mut application = Application::new(WindowType::Linux);
-    let gui = Egui::new();
     let layer = ExampleLayer {};
     application.push_layer(Box::new(layer));
-    application.push_overlay(Box::new(gui));
     application.run();
 }

@@ -1,3 +1,7 @@
+use std::{mem::{self, size_of}, os::raw::c_void};
+
+use gl::types::{GLenum, GLuint};
+
 use super::{
     event::{applicationevent::WindowCloseEvent, DispatchesEvent, EventType},
     layer::{self, Layer},
@@ -9,6 +13,8 @@ pub struct Application {
     window: Window,
     running: bool,
     layer_stack: LayerStack,
+    vertex_array_handle: u32,
+    index_buffer_handle: u32,
 }
 
 impl DispatchesEvent for Application {
@@ -32,10 +38,36 @@ impl DispatchesEvent for Application {
 impl Application {
     pub fn new(system_type: WindowType) -> Application {
         let window = Window::new(WindowProps::default(), system_type);
+        let mut vertex_array_handle: GLuint = 0;
+        let mut index_buffer_handle: GLuint = 0;
+        let vertices = [
+            -0.5, -0.5, 0.0,
+			 0.5, -0.5, 0.0,
+			 0.0,  0.5, 0.0
+
+        ];
+        unsafe {
+            gl::GenVertexArrays(1, &mut vertex_array_handle);
+            gl::BindVertexArray(vertex_array_handle);
+            gl::GenBuffers(1, &mut vertex_array_handle as *mut u32);
+            gl::BindBuffer(gl::ARRAY_BUFFER, vertex_array_handle);
+            gl::BufferData(vertex_array_handle, 9, mem::transmute(&vertices[0]), gl::STATIC_DRAW);
+            gl::EnableVertexAttribArray(0);
+            gl::VertexAttribPointer(0, 3, gl::FLOAT, gl::FALSE, 3 * size_of::<f32>() as i32, 0x0 as *const c_void);
+
+            gl::GenBuffers(1, &mut index_buffer_handle as *mut u32);
+            gl::BindBuffer(gl::ELEMENT_ARRAY_BUFFER, index_buffer_handle);
+
+            let indices = [ 0, 1, 2 ];
+            gl::BufferData(gl::ELEMENT_ARRAY_BUFFER, 3, mem::transmute(&indices[0]), gl::STATIC_DRAW);
+
+        }
         Application {
             window,
             running: true,
             layer_stack: LayerStack::default(),
+            vertex_array_handle,
+            index_buffer_handle,
         }
     }
     pub fn close_window(&mut self, event: &WindowCloseEvent) -> bool {
